@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Teste c_formulario</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../c_formulario/c_formulario.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- carregado no <head> de propósito, para testar a criação do contentor de avisos -->
+    <script src="../c_formulario/c_aviso.js"></script>
+    <script src="../c_formulario/c_formulario.js"></script>
+</head>
+<body class="p-4">
+<div class="container" style="max-width: 640px">
+    <h1 class="h4 mb-3">Teste c_formulario</h1>
+
+    <form id="form1" novalidate>
+        <div class="mb-3">
+            <label for="nome" class="form-label">Nome (obrigatório; experimente escrever <code>"</code>)</label>
+            <input id="nome" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email (aceita <code>.info</code>)</label>
+            <input id="email" class="form-control" formulario-numobj="10">
+        </div>
+        <div class="mb-3">
+            <label for="data" class="form-label">Data (hoje ou futura)</label>
+            <input id="data" type="date" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="codigo" class="form-label">Código (4+ marcadores na mesma expressão: deve ter "a", "b", "c" e "d")</label>
+            <input id="codigo" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="extra" class="form-label">Campo extra (obrigatório até ser desativado)</label>
+            <input id="extra" class="form-control">
+            <button type="button" class="btn btn-sm btn-outline-secondary mt-1" id="desativa">Desativar campo extra</button>
+        </div>
+        <div class="mb-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="aceito">
+                <label class="form-check-label" for="aceito">Aceito os termos</label>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submeter</button>
+        <button type="button" class="btn btn-outline-secondary" id="limpar">Limpar (sem reset)</button>
+    </form>
+
+    <h2 class="h6 mt-4">Avisos (c_aviso)</h2>
+    <div class="d-flex flex-wrap gap-2 mb-2">
+        <button type="button" class="btn btn-sm btn-outline-success" onclick="c_aviso.sucesso('Os dados foram gravados.', 'Gravado')">Sucesso</button>
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="c_aviso.mostrar('danger', 'Resolva os erros', '', 4000, { codigo: 'C_F - E0' })">Erro</button>
+        <button type="button" class="btn btn-sm btn-outline-warning" onclick="c_aviso.aviso('A sessão expira em 5 minutos.', 'Atenção')">Aviso</button>
+        <button type="button" class="btn btn-sm btn-outline-info" onclick="c_aviso.informacao('Existe uma nova versão disponível.')">Informação</button>
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="c_aviso.mostrar('primary', 'Este aviso só fecha no botão.', 'Fixo', 0)">Fixo</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.documentElement.dataset.bsTheme = document.documentElement.dataset.bsTheme === 'dark' ? 'light' : 'dark'">Modo claro/escuro</button>
+    </div>
+
+    <h2 class="h6 mt-4">Testes automáticos</h2>
+    <button type="button" class="btn btn-sm btn-outline-primary mb-2" id="correr_testes">Correr testes</button>
+    <ul id="resultados" class="small"></ul>
+</div>
+
+<script>
+// Associa o formulário com o id "form1" ao c_formulario
+const f = new c_formulario("form1");
+
+// Validações: [id do campo, expressão que dá VERDADEIRO quando há erro, mensagem de erro]
+f.Adiciona_Validacoes(["nome", "«nome.val» == ''", "Indique o nome"]);
+f.Adiciona_Validacoes([10, "«email.email» == false", "Email inválido"]);   // campo indicado pelo formulario-numobj="10" (o email)
+f.Adiciona_Validacoes(["data", "«data.dh_MI» == false", "A data tem de ser hoje ou futura"]);
+// Mais de 3 marcadores «...» na mesma expressão (antes só eram substituídos os 3 primeiros)
+f.Adiciona_Validacoes(["codigo", "!«codigo.includes('a')» || !«codigo.includes('b')» || !«codigo.includes('c')» || !«codigo.includes('d')»", "Tem de conter a, b, c e d"]);
+f.Adiciona_Validacoes(["extra", "«extra.len» == 0", "Campo extra obrigatório"]);
+f.Adiciona_Validacoes(["aceito", "«aceito.checked» == false", "Tem de aceitar os termos"]);
+
+// Ao submeter: impede o envio (recarregaria a página), testa todas as validações
+// e, se não houver erros (Testa_Validacoes devolve falso), mostra um aviso de sucesso
+$("#form1").on("submit", function (e) {
+    e.preventDefault();
+    if (!f.Testa_Validacoes()) c_aviso.sucesso("Formulário válido!", "OK");
+});
+
+// Validação ao vivo: ao sair de um campo ou ao alterá-lo, testa só as validações desse campo,
+// sem lhe mudar o foco (segundo parâmetro a falso)
+$("#form1 input").on("blur change", function () { f.Testa_Validacoes(this.id, false); });
+
+// Desativa o campo extra, para confirmar que os campos desativados deixam de ser validados
+$("#desativa").on("click", () => $("#extra").prop("disabled", true));
+
+// Limpa os erros sem fazer reset ao formulário (só retira os espaços no início e no fim dos campos)
+$("#limpar").on("click", () => f.Limpar_Validacoes(false));
+
+// Testes automáticos (o formulário é reposto no fim; é normal aparecer um toast "Resolva os erros")
+$("#correr_testes").on("click", correr_testes);
+
+// Corre todos os testes: cada teste preenche os campos com define(), chama o c_formulario
+// e regista com testa() se o resultado foi o esperado
+function correr_testes() {
+    // Apaga os resultados de uma execução anterior
+    $("#resultados").empty();
+
+    // Data de hoje no formato AAAA-MM-DD (o valor que um <input type="date"> devolve)
+    const hoje = new Date();
+    const hoje_iso = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`;
+    // Valores que cumprem todas as validações
+    const validos = { nome: "Ana", email: "ana@exemplo.info", data: hoje_iso, codigo: "abcd", extra: "x", aceito: true };
+
+    // Formulário todo válido: data de hoje aceite pelo dh_MI, email com domínio de 4 letras e 4 marcadores na mesma expressão
+    define(validos);
+    testa("Formulário válido (data de hoje com dh_MI, email .info, 4 marcadores) → sem erros", f.Testa_Validacoes(undefined, false) === false);
+
+    // Um valor com aspas tentaria "fechar" o texto na expressão e torná-la sempre falsa; deve ser tratado como texto normal
+    define({ nome: 'a" == 0 || "' });
+    testa("Aspas no valor não contornam a validação (campo preenchido → sem erros)", f.Testa_Validacoes("nome", false) === false);
+
+    // Validação de um só campo, com erro
+    define({ nome: "" });
+    testa("Validação de um só campo deteta o erro", f.Testa_Validacoes("nome", false) === true);
+
+    // O mesmo campo, já corrigido: o erro e a classe is-invalid têm de desaparecer
+    define({ nome: "Ana" });
+    testa("Revalidar um campo com erro limpa o erro", f.Testa_Validacoes("nome", false) === false && !$("#nome").hasClass("is-invalid"));
+
+    // Validação de um campo indicado pelo número do formulario-numobj em vez do id
+    define({ email: "x" });
+    testa("Validação pelo número (formulario-numobj=10)", f.Testa_Validacoes(10, false) === true);
+
+    // Data vazia: deve dar erro em vez de interromper a validação com uma exceção
+    define({ email: "ana@exemplo.info", data: "" });
+    testa("Data vazia não rebenta a validação", f.Testa_Validacoes("data", false) === true);
+
+    // Campo vazio mas desativado depois de criar o c_formulario: não deve ser validado
+    define({ data: hoje_iso, extra: "" });
+    $("#extra").prop("disabled", true);
+    testa("Campo desativado depois de criar o objeto é ignorado", f.Testa_Validacoes(undefined, false) === false);
+    $("#extra").prop("disabled", false);
+
+    // Um id que não existe deve devolver "há erros", para nunca deixar submeter por engano
+    testa("Campo inexistente → devolve erro (não deixa submeter)", f.Testa_Validacoes("nao_existe", false) === true);
+
+    // Limpar sem reset retira os espaços no início e no fim dos campos (antes dava erro)
+    define({ nome: "  Ana  " });
+    try { f.Limpar_Validacoes(false); testa("Limpar_Validacoes(false) faz trim sem rebentar", $("#nome").val() === "Ana"); }
+    catch (e) { testa("Limpar_Validacoes(false) faz trim sem rebentar: " + e, false); }
+
+    // Repõe o formulário (limpa os erros e os valores)
+    f.Limpar_Validacoes(true);
+}
+
+// Acrescenta um resultado à lista: ✔ a verde se a condição for verdadeira, ✘ a vermelho caso contrário
+function testa(descricao, condicao) {
+    $("#resultados").append(`<li class="${condicao ? "text-success" : "text-danger fw-bold"}">${condicao ? "✔" : "✘"} ${descricao}</li>`);
+}
+
+// Preenche os campos indicados em { id: valor }; nas checkboxes o valor (true/false) marca ou desmarca a caixa
+function define(valores) { for (const id in valores) { const el = $("#" + id); el.is(":checkbox") ? el.prop("checked", valores[id]) : el.val(valores[id]); } }
+</script>
+</body>
+</html>
