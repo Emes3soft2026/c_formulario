@@ -1,0 +1,55 @@
+/***********************************************************/
+/* C_FORMULÁRIO - Validador de formulários                 */
+/* Desenvolvido por Marco Meneses (EMES3SOFT)              */
+/* Versão 1.9                                              */
+/***********************************************************/
+
+/* Mesmo aspeto do .invalid-feedback do Bootstrap (adapta-se ao modo escuro) */
+.erro_c_formulario {
+    margin-top: .25rem;
+    color: var(--bs-form-invalid-color, var(--bs-danger));
+    font-size: .875em;
+    font-weight: 500;
+    width: 100%;
+}
+
+.esconde_c_formulario {
+    display: none;
+}
+
+.objeto_invalido_c_formulario {
+    border: 1px solid var(--bs-form-invalid-border-color, var(--bs-danger));
+    border-radius: var(--bs-border-radius, .375rem);
+}
+
+.objeto_valido_c_formulario {
+    border: 1px solid var(--bs-form-valid-border-color, var(--bs-success));
+    border-radius: var(--bs-border-radius, .375rem);
+}
+
+.c_formulario .tooltip-inner{
+    background-color: var(--bs-danger); 
+    color: var(--bs-light);
+    box-shadow: none;
+    border: none;
+}
+
+.c_formulario.bs-tooltip-top .tooltip-arrow::before,
+.c_formulario.bs-tooltip-auto[data-popper-placement^=top] .tooltip-arrow::before {
+    border-top-color:var(--bs-danger);
+}
+
+.c_formulario.bs-tooltip-end .tooltip-arrow::before,
+.c_formulario.bs-tooltip-auto[data-popper-placement^=right] .tooltip-arrow::before {
+    border-right-color: var(--bs-danger);
+}
+
+.c_formulario.bs-tooltip-bottom .tooltip-arrow::before,
+.c_formulario.bs-tooltip-auto[data-popper-placement^=bottom] .tooltip-arrow::before {
+    border-bottom-color: var(--bs-danger);
+}
+
+.c_formulario.bs-tooltip-start .tooltip-arrow::before,
+.c_formulario.bs-tooltip-auto[data-popper-placement^=left] .tooltip-arrow::before {
+    border-left-color: var(--bs-danger);
+}
