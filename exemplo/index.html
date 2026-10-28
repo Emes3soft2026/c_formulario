@@ -1,0 +1,217 @@
+<!-- Exemplo da aplicação do C_FORMULÁRIO - Validador de formulários -->
+
+<!doctype html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Exemplo c_formulario</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../c_formulario/c_formulario.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../c_formulario/c_aviso.js"></script>
+    <script src="../c_formulario/c_formulario.js"></script>
+    <style>
+        body { background: var(--bs-tertiary-bg); }
+        .seccao { font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--bs-secondary-color); }
+        /* Grupos de opções: borda transparente para não "saltar" quando fica com erro */
+        .grupo-opcoes { padding: .5rem .75rem; border: 1px solid transparent; border-radius: var(--bs-border-radius); }
+    </style>
+</head>
+<body class="py-4">
+<div class="container" style="max-width: 920px">
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <div>
+            <h1 class="h4 mb-0">Inscrição no evento</h1>
+            <div class="text-body-secondary small">Exemplo de utilização do c_formulario com vários campos por linha</div>
+        </div>
+        <div class="d-flex gap-2">
+            <select id="modo_aviso" class="form-select form-select-sm" style="width: auto" aria-label="Modo de aviso">
+                <option value="text">Erros em texto</option>
+                <option value="tooltip">Erros em tooltip</option>
+            </select>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="tema">Claro/escuro</button>
+        </div>
+    </div>
+
+    <form id="inscricao" class="card shadow-sm" novalidate>
+        <div class="card-body p-4">
+
+            <div class="seccao mb-2">Dados pessoais</div>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="nome" class="form-label">Nome</label>
+                    <input id="nome" name="nome" class="form-control" autocomplete="given-name">
+                </div>
+                <div class="col-md-6">
+                    <label for="apelido" class="form-label">Apelido</label>
+                    <input id="apelido" name="apelido" class="form-control" autocomplete="family-name">
+                </div>
+                <div class="col-md-4">
+                    <label for="nascimento" class="form-label">Data de nascimento</label>
+                    <input id="nascimento" name="nascimento" type="date" class="form-control">
+                </div>
+                <div class="col-md-8">
+                    <span class="form-label d-block">Género</span>
+                    <!-- Grupo de opções: o id do contentor é o "name" dos radios; na validação usa-se "genero?" -->
+                    <div id="genero" class="grupo-opcoes">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="genero" id="genero_f" value="F">
+                            <label class="form-check-label" for="genero_f">Feminino</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="genero" id="genero_m" value="M">
+                            <label class="form-check-label" for="genero_m">Masculino</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="genero" id="genero_o" value="O">
+                            <label class="form-check-label" for="genero_o">Prefiro não dizer</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="seccao mb-2">Contactos</div>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input id="email" name="email" type="email" class="form-control" autocomplete="email">
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <label for="telemovel" class="form-label">Telemóvel</label>
+                    <input id="telemovel" name="telemovel" class="form-control" inputmode="numeric" maxlength="9" autocomplete="tel-national">
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <label for="codpostal" class="form-label">Código postal</label>
+                    <input id="codpostal" name="codpostal" class="form-control" placeholder="0000-000" maxlength="8" autocomplete="postal-code">
+                </div>
+                <div class="col-md-6">
+                    <label for="distrito" class="form-label">Distrito</label>
+                    <select id="distrito" name="distrito" class="form-select">
+                        <option value="">Escolha…</option>
+                        <option>Aveiro</option><option>Braga</option><option>Coimbra</option><option>Faro</option>
+                        <option>Leiria</option><option>Lisboa</option><option>Porto</option><option>Setúbal</option>
+                        <option>Viseu</option><option>Região Autónoma dos Açores</option><option>Região Autónoma da Madeira</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="website" class="form-label">Website <span class="text-body-secondary">(opcional)</span></label>
+                    <div class="input-group has-validation">
+                        <span class="input-group-text">https://</span>
+                        <input id="website" name="website" class="form-control" placeholder="exemplo.pt">
+                    </div>
+                </div>
+            </div>
+
+            <div class="seccao mb-2">Evento</div>
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-md-4">
+                    <label for="data_evento" class="form-label">Data pretendida</label>
+                    <input id="data_evento" name="data_evento" type="date" class="form-control">
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <label for="bilhete" class="form-label">Bilhete</label>
+                    <select id="bilhete" name="bilhete" class="form-select">
+                        <option value="">Escolha…</option>
+                        <option value="normal">Normal</option>
+                        <option value="estudante">Estudante</option>
+                        <option value="vip">VIP</option>
+                    </select>
+                </div>
+                <div class="col-sm-6 col-md-2">
+                    <label for="pessoas" class="form-label">Pessoas</label>
+                    <input id="pessoas" name="pessoas" type="number" min="1" max="10" class="form-control" value="1">
+                </div>
+                <div class="col-sm-6 col-md-2">
+                    <label for="codigo" class="form-label">Código promo</label>
+                    <input id="codigo" name="codigo" class="form-control text-uppercase" placeholder="PROMO…">
+                </div>
+                <div class="col-12">
+                    <span class="form-label d-block">Interesses <span class="text-body-secondary">(escolha pelo menos 2)</span></span>
+                    <div id="interesses" class="grupo-opcoes">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="interesses" id="interesses_palestras" value="palestras">
+                            <label class="form-check-label" for="interesses_palestras">Palestras</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="interesses" id="interesses_workshops" value="workshops">
+                            <label class="form-check-label" for="interesses_workshops">Workshops</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="interesses" id="interesses_networking" value="networking">
+                            <label class="form-check-label" for="interesses_networking">Networking</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="interesses" id="interesses_jantar" value="jantar">
+                            <label class="form-check-label" for="interesses_jantar">Jantar</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="seccao mb-2">Conta</div>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="passe" class="form-label">Palavra-passe</label>
+                    <input id="passe" name="passe" type="password" class="form-control" autocomplete="new-password">
+                    <div class="form-text">10 a 25 caracteres, com maiúsculas, minúsculas, números e símbolos.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="confirmar" class="form-label">Confirmar palavra-passe</label>
+                    <input id="confirmar" name="confirmar" type="password" class="form-control" autocomplete="new-password">
+                </div>
+            </div>
+
+            <div class="seccao mb-2">Faturação</div>
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="faturar_empresa" name="faturar_empresa">
+                        <label class="form-check-label" for="faturar_empresa">Faturar em nome de uma empresa</label>
+                    </div>
+                </div>
+                <!-- Campos condicionais: quando escondidos ficam desativados e não são validados -->
+                <div class="col-md-4 campos-empresa d-none">
+                    <label for="nif" class="form-label">NIF</label>
+                    <input id="nif" name="nif" class="form-control" inputmode="numeric" maxlength="9" disabled>
+                </div>
+                <div class="col-md-8 campos-empresa d-none">
+                    <label for="empresa" class="form-label">Nome da empresa</label>
+                    <input id="empresa" name="empresa" class="form-control" disabled>
+                </div>
+            </div>
+
+            <div class="seccao mb-2">Observações</div>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label for="observacoes" class="form-label">Observações <span class="text-body-secondary">(opcional, máx. 200 caracteres e 2 links)</span></label>
+                    <textarea id="observacoes" name="observacoes" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="termos" name="termos">
+                        <label class="form-check-label" for="termos">Li e aceito os termos e condições</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex flex-wrap gap-2 justify-content-end p-3">
+            <button type="button" class="btn btn-outline-secondary" id="limpar">Limpar</button>
+            <button type="submit" class="btn btn-primary px-4">Inscrever</button>
+        </div>
+    </form>
+
+    <div id="resultado" class="card shadow-sm mt-3 d-none">
+        <div class="card-body">
+            <div class="seccao mb-2">Dados enviados</div>
+            <pre class="mb-0 small" id="resultado_dados"></pre>
+        </div>
+    </div>
+</div>
+
+<script src="index.js"></script>
+</body>
+</html>
