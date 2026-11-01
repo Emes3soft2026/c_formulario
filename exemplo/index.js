@@ -1,4 +1,4 @@
-// Exemplo da aplicação do C_FORMULÁRIO - Validador de formulários
+// Exemplo da aplicação do C_FORMULÁRIO - Validador de formulários (sem jQuery)
 
 const f = new c_formulario("inscricao");
 
@@ -8,6 +8,9 @@ f.Adiciona_Validacoes(["apelido",     "«apelido.len» < 2", "Indique o apelido"
 f.Adiciona_Validacoes(["nascimento",  "«nascimento.dh_m» == false", "Indique uma data de nascimento válida (anterior a hoje)"]);
 f.Adiciona_Validacoes(["genero?",     "«genero?.len» == 0", "Escolha uma opção"]);
 f.Adiciona_Validacoes(["email",       "«email.email» == false", "Indique um email válido"]);
+// Exemplo de pedido ao servidor (ex: saber se o email já existe na base de dados).
+// Descomente e indique a ligação do seu servidor; deve devolver 1 se o email já existir.
+// f.Adiciona_Validacoes(["email", `«data_address((/pedidos/existe_email.php;;{"email": «email.val»}))» == 1`, "Este email já está registado"]);
 f.Adiciona_Validacoes(["telemovel",   "!«telemovel.isnumeric» || «telemovel.len» != 9 || «telemovel.val».charAt(0) != '9'", "Número com 9 dígitos, a começar por 9"]);
 f.Adiciona_Validacoes(["codpostal",   "«codpostal.codpostal» == false", "Formato 0000-000"]);
 f.Adiciona_Validacoes(["distrito",    "«distrito.val» == ''", "Escolha o distrito"]);
@@ -24,68 +27,66 @@ f.Adiciona_Validacoes(["empresa",     "«empresa.len» < 2", "Indique o nome da 
 f.Adiciona_Validacoes(["observacoes", "«observacoes.len» > 200 || «observacoes.contar('http')» > 2", "Máximo de 200 caracteres e 2 links"]);
 f.Adiciona_Validacoes(["termos",      "«termos.checked» == false", "Tem de aceitar os termos"]);
 
+const formulario = document.getElementById("inscricao");
 const ids_validados = new Set(f.validacoes.map(v => v.id));
 let ja_submeteu = false;
 
 // Submissão do formulário (botão "Inscrever" ou tecla Enter num campo)
-$("#inscricao").on("submit", function (e) {
-    // Impede o envio normal do formulário (que recarregaria a página); neste exemplo os dados são só mostrados
+formulario.addEventListener("submit", function (e) {
+    // Neste exemplo os dados são só mostrados (não recarrega a página)
     e.preventDefault();
-
-    // A partir daqui, os campos passam a ser revalidados enquanto o utilizador escreve (ver o evento "input change" abaixo)
+    // A partir daqui, os campos passam a ser revalidados enquanto o utilizador escreve
     ja_submeteu = true;
 
-    // Testa todas as validações: devolve verdadeiro se houver erros.
-    // Nesse caso, os erros já ficam assinalados nos campos, o foco vai para o primeiro erro
-    // e aparece o aviso "Resolva os erros"; por isso basta sair da função.
+    // Verdadeiro = existem erros: já ficam assinalados, com o foco no primeiro e o aviso "Resolva os erros"
     if (f.Testa_Validacoes()) return;
 
-    // Sem erros: recolhe os dados do formulário num objeto { name: valor }
+    // Sem erros: recolhe os dados { name: valor } (os campos desativados e as caixas não marcadas não entram)
     const dados = {};
-    // FormData lê todos os campos com atributo "name" (como numa submissão normal);
-    // os campos desativados e as caixas não marcadas não são incluídos
     new FormData(this).forEach((valor, chave) => {
-        // As palavras-passe não são mostradas
         if (chave === "passe" || chave === "confirmar") valor = "••••••";
-        // Campos com o mesmo name (ex: várias checkboxes "interesses") são juntos numa lista
         dados[chave] = dados[chave] !== undefined ? [].concat(dados[chave], valor) : valor;
     });
+    document.getElementById("resultado_dados").textContent = JSON.stringify(dados, null, 2);
+    document.getElementById("resultado").classList.remove("d-none");
 
-    // Mostra os dados em JSON formatado (com 2 espaços) no cartão "Dados enviados" e torna-o visível.
-    // Numa situação real, seria aqui que os dados seriam enviados para o servidor (ex: $.post(...))
-    $("#resultado_dados").text(JSON.stringify(dados, null, 2));
-    $("#resultado").removeClass("d-none");
-
-    // Aviso de sucesso (c_aviso.js)
     c_aviso.sucesso("A inscrição foi registada.", "Inscrição concluída");
 });
 
 // Depois da primeira tentativa, cada campo é revalidado enquanto o utilizador corrige
-$("#inscricao").on("input change", "input, select, textarea", function () {
-    if (!ja_submeteu) return;
-    const alvo = $(this).is(":radio") || this.name === "interesses" ? this.name + "?" : this.id;
+function revalida(e) {
+    if (!ja_submeteu || !e.target.matches("input, select, textarea")) return;
+    const el = e.target;
+    const alvo = el.type === "radio" || el.name === "interesses" ? el.name + "?" : el.id;
     if (ids_validados.has(alvo)) f.Testa_Validacoes(alvo, false);
-});
+}
+formulario.addEventListener("input", revalida);
+formulario.addEventListener("change", revalida);
 
-// Campos condicionais
-$("#faturar_empresa").on("change", function () {
-    $(".campos-empresa").toggleClass("d-none", !this.checked).find("input").prop("disabled", !this.checked);
-});
+// Campos condicionais: quando escondidos ficam desativados e não são validados
+const faturar = document.getElementById("faturar_empresa");
+function campos_empresa() {
+    document.querySelectorAll(".campos-empresa").forEach(div => {
+        div.classList.toggle("d-none", !faturar.checked);
+        div.querySelectorAll("input").forEach(i => { i.disabled = !faturar.checked; });
+    });
+}
+faturar.addEventListener("change", campos_empresa);
 
-$("#limpar").on("click", function () {
+document.getElementById("limpar").addEventListener("click", function () {
     ja_submeteu = false;
     f.Limpar_Validacoes(true);
-    $("#faturar_empresa").trigger("change");
-    $("#resultado").addClass("d-none");
+    campos_empresa();
+    document.getElementById("resultado").classList.add("d-none");
 });
 
-$("#modo_aviso").on("change", function () {
+document.getElementById("modo_aviso").addEventListener("change", function () {
     f.Limpar_Validacoes(false);
     f.tipo_aviso = this.value === "tooltip" ? tipos_aviso.aviso_tooltip : tipos_aviso.aviso_texto;
     if (ja_submeteu) f.Testa_Validacoes(undefined, false);
 });
 
-$("#tema").on("click", function () {
+document.getElementById("tema").addEventListener("click", function () {
     const html = document.documentElement;
     html.dataset.bsTheme = html.dataset.bsTheme === "dark" ? "light" : "dark";
 });
