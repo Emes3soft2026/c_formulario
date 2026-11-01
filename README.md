@@ -1,8 +1,8 @@
 # c_formulario
 
 Módulo JavaScript para criar formulários com validação dinâmica. <br>
-Última versão: **1.9** <br>
-Atualizada em **21/10/2026**
+Última versão: **2.0** <br>
+Atualizada em **01/11/2026**
 
 Desenvolvido para ser código aberto, por forma a qualquer pessoa poder acrescentar ou alterar funcionalidades. <br>
 Caso detetem algum problema, enviem email para emes3soft@gmail.com com a descrição o mais detalhada possível. <br>
@@ -21,14 +21,12 @@ exemplo/                exemplo completo (index.html + index.js)
 testes/                 página de testes automáticos
 ```
 
-O `b5toast.js` e o `atributos.js` deixaram de ser necessários. **(UPDATE)**
-
 # Outros módulos necessários
 
-- jQuery: https://jquery.com/download/
-- Bootstrap 5 (CSS e JS; o JS só é necessário para o modo de erros em tooltip): https://getbootstrap.com/docs/5.3/getting-started/download/
+- Bootstrap 5 (só o CSS, para o aspeto dos campos): https://getbootstrap.com/docs/5.3/getting-started/download/
 
-O `c_aviso.js` vem incluído e não depende de outras librarias (já não é necessário o Font Awesome). **(NEW)**
+O jQuery e o JS do Bootstrap deixaram de ser necessários: o tooltip de erro é do próprio módulo. **(UPDATE 2.0)** <br>
+O `c_aviso.js` vem incluído e não depende de outras librarias.
 
 # Instalação
 
@@ -36,15 +34,13 @@ O `c_aviso.js` vem incluído e não depende de outras librarias (já não é nec
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="c_formulario/c_formulario.css">
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="c_formulario/c_aviso.js"></script>
 <script src="c_formulario/c_formulario.js"></script>
 ```
 
 - O `c_aviso.js` tem de ser carregado **antes** do `c_formulario.js`.
 - O `c_formulario.json` tem de estar na mesma pasta do `c_formulario.js` (é encontrado automaticamente).
-- As páginas têm de ser abertas através de um servidor (ex: `python3 -m http.server`), pois o ficheiro JSON não é lido a partir de `file://`.
+- As páginas podem ser abertas diretamente do disco (`file://`): se o ficheiro JSON não puder ser lido, são usadas as mensagens pré-definidas. **(UPDATE 2.0)**
 
 # Associar formulário
 
@@ -57,7 +53,7 @@ const f_Login = new c_formulario("frmLogin", "mensagens/minhas_mensagens.json");
 - O id pode ser indicado com ou sem `#`.
 - Modo de apresentação dos erros: **(NEW)**
   - `f_Login.tipo_aviso = tipos_aviso.aviso_texto;` (pré-definido) texto por baixo do campo
-  - `f_Login.tipo_aviso = tipos_aviso.aviso_tooltip;` tooltip do Bootstrap
+  - `f_Login.tipo_aviso = tipos_aviso.aviso_tooltip;` tooltip por cima do campo (já não precisa do JS do Bootstrap) **(UPDATE 2.0)**
 
 # Associar validações
 
@@ -68,7 +64,8 @@ f_Login.Adiciona_Validacoes([<id do objeto>, <condição>, <texto do erro>]);
 - **id do objeto**: id do objeto html onde é colocado o erro
   - pode ser o número do atributo `formulario-numobj` do objeto (ex: `<input id="txtEmail" formulario-numobj="10">` e `Adiciona_Validacoes([10, ...])`) **(UPDATE)**
   - para um grupo de objetos (radios ou checkboxes) coloque o carater `?` (ver [Grupos de objetos](#grupos-de-objetos))
-- **condição**: expressão JavaScript que deve dar **verdadeiro quando existe erro**
+- **condição**: expressão ao estilo JavaScript que deve dar **verdadeiro quando existe erro**
+  - a condição é lida por um analisador próprio (já não é usado o `eval`): são aceites os marcadores `«...»`, textos, números, `true`/`false`, parênteses, os operadores abaixo, `+ - * / %` e as funções de texto `charAt`, `toLowerCase`, `toUpperCase`, `trim`, `includes`, `startsWith`, `endsWith`, `indexOf`, `substring`, `slice` e `.length` **(UPDATE 2.0)**
   - os objetos html são referidos pelo seu id entre `«` e `»`, seguido de `.` e da propriedade: `«txtUtilizador.val»`
   - pode usar qualquer operador de comparação (`<`, `>`, `==`, `<=`, `>=`, `!=`, `!==`, `===`, `!`) e os operadores `||` e `&&` para testar vários objetos na mesma validação
   - não existe limite de objetos `«...»` por expressão **(UPDATE)**
@@ -153,7 +150,7 @@ Contudo, pode criá-lo para escolher onde o erro aparece:
 # Testar as validações
 
 ```js
-$("#frmLogin").on("submit", function (e) {
+document.getElementById("frmLogin").addEventListener("submit", function (e) {
     if (f_Login.Testa_Validacoes())   // verdadeiro = existem erros
         e.preventDefault();
 });
@@ -174,9 +171,10 @@ Validação enquanto o utilizador escreve, depois da primeira submissão:
 
 ```js
 let ja_submeteu = false;
-$("#frmLogin").on("submit", function (e) { ja_submeteu = true; /* ... */ });
-$("#frmLogin").on("input change", "input, select, textarea", function () {
-    if (ja_submeteu) f_Login.Testa_Validacoes(this.id, false);
+const frm = document.getElementById("frmLogin");
+frm.addEventListener("submit", function (e) { ja_submeteu = true; /* ... */ });
+frm.addEventListener("input", function (e) {
+    if (ja_submeteu) f_Login.Testa_Validacoes(e.target.id, false);
 });
 ```
 
@@ -211,7 +209,7 @@ c_aviso.mostrar("danger", "Resolva os erros", "", 4000, { codigo: "C_F - E0" });
 
 Ficheiros disponíveis na pasta **[exemplo](exemplo)**: formulário de inscrição com vários campos por linha, grupos de objetos, campos condicionais, confirmação de palavra-passe, datas, validação enquanto o utilizador escreve e alternância entre erros em texto e em tooltip.
 
-A pasta **[testes](testes)** contém uma página com testes automáticos do módulo.
+A pasta **[testes](testes)** contém uma página com testes automáticos do módulo (`testes/index.html?auto` corre-os ao abrir a página).
 
 # Licença
 

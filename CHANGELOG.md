@@ -1,5 +1,21 @@
 # Alterações
 
+## 2.0 (01/11/2026)
+
+### Novo
+- Analisador próprio para as condições: deixa de ser usado o `eval`, pelo que só são aceites marcadores `«...»`, textos, números, operadores de comparação e lógicos, `+ - * / %`, parênteses e algumas funções de texto (`charAt`, `toLowerCase`, `toUpperCase`, `trim`, `includes`, `startsWith`, `endsWith`, `indexOf`, `substring`, `slice`, `.length`).
+- Tooltip de erro do próprio módulo (modo `aviso_tooltip`), por cima do campo, ao passar o rato ou com o foco.
+- As mensagens pré-definidas estão também no `c_formulario.js`: as páginas funcionam abertas diretamente do disco (`file://`).
+- Página de testes com mais testes (grupos de objetos, código rejeitado nas condições) e execução automática com `testes/index.html?auto`.
+
+### Corrigido
+- `data_address`: os marcadores dentro dos dados (ex: `{"email": «email.val»}`) são sempre substituídos antes do pedido.
+- Os grupos (`nome?`) passam a procurar os objetos pelo `name` exato (antes bastava o `name` conter o texto).
+
+### Alterado
+- Deixa de depender do jQuery e do JS do Bootstrap (o CSS do Bootstrap continua a dar o aspeto dos campos).
+- O exemplo passa a usar JavaScript sem jQuery e o código promocional mostra que é opcional.
+
 ## 1.9 (21/10/2026)
 
 ### Novo
