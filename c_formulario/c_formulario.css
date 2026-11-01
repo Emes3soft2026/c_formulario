@@ -1,55 +1,62 @@
 /***********************************************************/
 /* C_FORMULÁRIO - Validador de formulários                 */
 /* Desenvolvido por Marco Meneses (EMES3SOFT)              */
-/* Versão 1.9                                              */
+/* Versão 2.0                                              */
 /***********************************************************/
 
 /* Mesmo aspeto do .invalid-feedback do Bootstrap (adapta-se ao modo escuro) */
 .erro_c_formulario {
     margin-top: .25rem;
-    color: var(--bs-form-invalid-color, var(--bs-danger));
+    color: var(--bs-form-invalid-color, var(--bs-danger, #dc3545));
     font-size: .875em;
     font-weight: 500;
     width: 100%;
 }
 
 .esconde_c_formulario {
-    display: none;
+    display: none !important;
 }
 
+/* Objetos que não são campos (ex: o contentor de um grupo de radios ou checkboxes) */
 .objeto_invalido_c_formulario {
-    border: 1px solid var(--bs-form-invalid-border-color, var(--bs-danger));
+    border: 1px solid var(--bs-form-invalid-border-color, var(--bs-danger, #dc3545)) !important;
     border-radius: var(--bs-border-radius, .375rem);
 }
 
 .objeto_valido_c_formulario {
-    border: 1px solid var(--bs-form-valid-border-color, var(--bs-success));
+    border: 1px solid var(--bs-form-valid-border-color, var(--bs-success, #198754)) !important;
     border-radius: var(--bs-border-radius, .375rem);
 }
 
-.c_formulario .tooltip-inner{
-    background-color: var(--bs-danger); 
-    color: var(--bs-light);
-    box-shadow: none;
-    border: none;
+/* As opções de um grupo com erro ficam também a vermelho */
+.objeto_invalido_c_formulario .form-check-input { border-color: var(--bs-form-invalid-border-color, #dc3545); }
+.objeto_invalido_c_formulario .form-check-label { color: var(--bs-form-invalid-color, #dc3545); }
+.objeto_valido_c_formulario .form-check-input:checked { background-color: var(--bs-success, #198754); border-color: var(--bs-success, #198754); }
+
+/* Tooltip de erro (modo aviso_tooltip): por cima do objeto, sem precisar do JS do Bootstrap */
+.c_formulario_tooltip {
+    --seta: 50%;
+    position: absolute;
+    z-index: 1080;
+    display: none;
+    max-width: 200px;
+    padding: .25rem .5rem;
+    font-size: .875rem;
+    line-height: 1.4;
+    text-align: center;
+    color: #fff;
+    background: var(--bs-danger, #dc3545);
+    border-radius: var(--bs-border-radius, .375rem);
+    pointer-events: none;
+    font-family: var(--bs-body-font-family, system-ui, sans-serif);
 }
 
-.c_formulario.bs-tooltip-top .tooltip-arrow::before,
-.c_formulario.bs-tooltip-auto[data-popper-placement^=top] .tooltip-arrow::before {
-    border-top-color:var(--bs-danger);
-}
-
-.c_formulario.bs-tooltip-end .tooltip-arrow::before,
-.c_formulario.bs-tooltip-auto[data-popper-placement^=right] .tooltip-arrow::before {
-    border-right-color: var(--bs-danger);
-}
-
-.c_formulario.bs-tooltip-bottom .tooltip-arrow::before,
-.c_formulario.bs-tooltip-auto[data-popper-placement^=bottom] .tooltip-arrow::before {
-    border-bottom-color: var(--bs-danger);
-}
-
-.c_formulario.bs-tooltip-start .tooltip-arrow::before,
-.c_formulario.bs-tooltip-auto[data-popper-placement^=left] .tooltip-arrow::before {
-    border-left-color: var(--bs-danger);
+.c_formulario_tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: var(--seta);
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--bs-danger, #dc3545);
 }
