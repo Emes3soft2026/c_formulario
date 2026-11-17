@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="favicon.png" width="150">
+</p>
+
 # c_formulario
 
 Módulo JavaScript para criar formulários com validação dinâmica. <br>
